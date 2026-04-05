@@ -82,6 +82,11 @@ int main(int argc, char *argv[]) {
 
     char *buffer = calloc(buffer_size, sizeof(char));
 
+    if (buffer == NULL) {
+        perror("sparse");
+        return 1;
+    }
+
     const int sparse_res = sparse(input_fd, output_fd, buffer_size, buffer);
 
     free(buffer);

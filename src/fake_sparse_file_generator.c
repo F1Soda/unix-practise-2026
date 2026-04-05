@@ -102,6 +102,11 @@ int main(int argc, char *argv[]) {
 
     char *buffer = calloc(buffer_size, sizeof (char));
 
+    if (buffer == NULL) {
+        perror("generate_fake_sparse_file");
+        return 1;
+    }
+
     const int generator_res = generate_fake_sparse_file(fd, buffer_size, buffer);
 
     free(buffer);
