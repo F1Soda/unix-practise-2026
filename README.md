@@ -1,4 +1,4 @@
-﻿# Unix-practise 2026 Task 1
+﻿# Unix-practise 2026 Task N
 
 ## Запуск
 
