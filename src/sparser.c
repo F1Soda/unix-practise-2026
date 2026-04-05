@@ -4,13 +4,12 @@
 #include <unistd.h>
 
 #include "constants.h"
-#include "file_utils.h"
 
 int sparse(const int input_fd, const int output_fd, const int buffer_size, char *buffer) {
     ssize_t bytes_read;
 
     off_t skip = 0;
-    while ((bytes_read = read_block(input_fd, buffer, buffer_size)) > 0) {
+    while ((bytes_read = read(input_fd, buffer, buffer_size)) > 0) {
         int is_empty = 1;
 
         for (ssize_t i = 0; i < bytes_read; i++) {
@@ -27,16 +26,22 @@ int sparse(const int input_fd, const int output_fd, const int buffer_size, char 
         } else {
             if (skip > 0) {
                 if (lseek(output_fd, skip, SEEK_CUR) == -1) {
-                    perror("lseek");
+                    perror("sparse");
                     return 1;
                 }
                 skip = 0;
             }
 
-            if (write_block(output_fd, buffer, bytes_read) != bytes_read) {
+            if (write(output_fd, buffer, bytes_read) != bytes_read) {
+                perror("sparse");
                 return 1;
             }
         }
+    }
+
+    if (bytes_read < 0) {
+        perror("sparse");
+        return 1;
     }
 
     return 0;
@@ -45,12 +50,13 @@ int sparse(const int input_fd, const int output_fd, const int buffer_size, char 
 int main(int argc, char *argv[]) {
     if (argc < 2 || argc > 4) {
         fprintf(stderr, "Usage: ./sparser <output_file> [input_file] [block_size]\n");
+        return 1;
     }
 
     const char *output_file = argv[1];
     const int output_fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (output_fd == -1) {
-        perror("open");
+        perror("sparse");
         return 1;
     }
 
@@ -59,7 +65,7 @@ int main(int argc, char *argv[]) {
         char *input_file = argv[2];
         input_fd = open(input_file, O_RDONLY);
         if (input_fd == -1) {
-            perror("open");
+            perror("sparse");
             return 1;
         }
     }
@@ -76,8 +82,17 @@ int main(int argc, char *argv[]) {
 
     char *buffer = calloc(buffer_size, sizeof(char));
 
-    sparse(input_fd, output_fd, buffer_size, buffer);
+    const int sparse_res = sparse(input_fd, output_fd, buffer_size, buffer);
 
     free(buffer);
-    return (close_file(output_fd) == 0 && close_file(input_fd) == 0) - 1;
+
+    const int close_res = close(output_fd);
+    const int close_res2 = close(input_fd);
+
+    if (close_res != 0 || close_res2 != 0) {
+        perror("sparse");
+        return 1;
+    }
+
+    return sparse_res;
 }

@@ -2,9 +2,9 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "constants.h"
-#include "file_utils.h"
 
 #define DEFAULT_FILE_LENGTH (4 * 1024 * 1024 + 1)
 // Вероятность, что блок в алгоритме будет содержать данные. По умолчанию вероятность 0.2
@@ -60,17 +60,22 @@ int generate_fake_sparse_file(const int fd, const int buffer_size, char* buffer)
             }
         }
 
-        if (write_block(fd, buffer, buffer_size) != buffer_size) {
+        if (write(fd, buffer, buffer_size) != buffer_size) {
+            perror("generate_fake_sparse_file");
             return 1;
         }
     }
 
     fill_buffer(buffer, 0, buffer_size, 1);
-    return write_block(fd, buffer, remainder);
+    if (write(fd, buffer, remainder) != remainder) {
+        perror("generate_fake_sparse_file");
+        return 1;
+    }
+
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
-
     if (argc < 2 || argc > 3) {
         fprintf(stderr, "Usage: ./fake-sparse-file-generator <output_file> [block_size]\n");
         return 1;
@@ -88,7 +93,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    char *buffer = calloc(buffer_size, sizeof (char));
     const int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     if (fd == -1) {
@@ -96,8 +100,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    generate_fake_sparse_file(fd, buffer_size, buffer);
+    char *buffer = calloc(buffer_size, sizeof (char));
+
+    const int generator_res = generate_fake_sparse_file(fd, buffer_size, buffer);
 
     free(buffer);
-    return close_file(fd);
+
+    if (close(fd) != 0) {
+        perror("generate_fake_sparse_file");
+        return 1;
+    }
+
+    return generator_res;
 }
