@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     const char *output_file = argv[1];
     const int output_fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (output_fd == -1) {
-        perror("sparse");
+        perror("main: open output file");
         return 1;
     }
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
         char *input_file = argv[2];
         input_fd = open(input_file, O_RDONLY);
         if (input_fd == -1) {
-            perror("sparse");
+            perror("main: open input file");
             return 1;
         }
     }
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
         char *end;
         buffer_size = strtol(argv[3], &end, 10);
         if (argv[3] == end) {
-            perror("Failed to parse buffer size");
+            perror("main: parse by strtol");
             return 1;
         }
     }
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     char *buffer = calloc(buffer_size, sizeof(char));
 
     if (buffer == NULL) {
-        perror("sparse");
+        perror("main: calloc");
         return 1;
     }
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     const int close_res2 = close(input_fd);
 
     if (close_res != 0 || close_res2 != 0) {
-        perror("sparse");
+        perror("main: close fd's");
         return 1;
     }
 

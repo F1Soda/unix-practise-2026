@@ -61,14 +61,14 @@ int generate_fake_sparse_file(const int fd, const int buffer_size, char* buffer)
         }
 
         if (write(fd, buffer, buffer_size) != buffer_size) {
-            perror("generate_fake_sparse_file");
+            perror("generate_fake_sparse_file: write");
             return 1;
         }
     }
 
     fill_buffer(buffer, 0, buffer_size, 1);
     if (write(fd, buffer, remainder) != remainder) {
-        perror("generate_fake_sparse_file");
+        perror("generate_fake_sparse_file: write remainder");
         return 1;
     }
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         char *end;
         buffer_size = strtol(argv[2], &end, 10);
         if (argv[2] == end) {
-            perror("Failed to parse buffer size");
+            perror("main: parsing strtol");
             return 1;
         }
     }
@@ -96,14 +96,14 @@ int main(int argc, char *argv[]) {
     const int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     if (fd == -1) {
-        perror("open");
+        perror("main: open output file");
         return 1;
     }
 
     char *buffer = calloc(buffer_size, sizeof (char));
 
     if (buffer == NULL) {
-        perror("generate_fake_sparse_file");
+        perror("main: calloc");
         return 1;
     }
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
     free(buffer);
 
     if (close(fd) != 0) {
-        perror("generate_fake_sparse_file");
+        perror("main: close output file");
         return 1;
     }
 
