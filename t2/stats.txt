@@ -1,0 +1,11 @@
+PID 144027: 106 locks
+PID 144030: 25 locks
+PID 144025: 29 locks
+PID 144031: 64 locks
+PID 144023: 7 locks
+PID 144024: 2 locks
+PID 144028: 61 locks
+PID 144026: 2 locks
+PID 144022: 12 locks
+PID 144029: 1 locks
+
