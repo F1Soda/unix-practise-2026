@@ -1,4 +1,4 @@
-﻿# Unix-practise 2026
+﻿# Task 2
 
 ```shell
 ./runme.sh
@@ -12,16 +12,16 @@ busy waiting как в случае с `while { sleep }`
 Статистика из последнего запуска `./runme.sh` лежит в файле stats.txt. Запуск на 10 потоках на протяжении 5 минут
 
 ```
-PID 144027: 106 locks
-PID 144030: 25 locks
-PID 144025: 29 locks
-PID 144031: 64 locks
-PID 144023: 7 locks
-PID 144024: 2 locks
-PID 144028: 61 locks
-PID 144026: 2 locks
-PID 144022: 12 locks
-PID 144029: 1 locks
+PID 51304: 125 locks
+PID 51299: 7 locks
+PID 51301: 53 locks
+PID 51302: 69 locks
+PID 51306: 37 locks
+PID 51298: 4 locks
+PID 51300: 1 locks
+PID 51305: 1 locks
+PID 51297: 9 locks
+PID 51303: 3 locks
 ```
 
 Заметно, что наблюдается голодание потоков: кто-то постоянно забирает ресурс, не давая 
