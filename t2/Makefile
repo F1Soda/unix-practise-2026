@@ -2,11 +2,11 @@
 
 all: main worker
 
-main: src/main.c src/lock.c
+main: src/main.c src
 	mkdir -p bin
 	gcc -g src/main.c src/lock.c -o bin/main
 
-worker: src/worker.c src/lock.c
+worker: src/worker.c src
 	mkdir -p bin
 	gcc -g src/worker.c src/lock.c -o bin/worker
 
