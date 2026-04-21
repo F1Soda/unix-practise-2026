@@ -8,8 +8,10 @@
 int sparse(const int input_fd, const int output_fd, const int buffer_size, char *buffer) {
     ssize_t bytes_read;
 
+    off_t total_size = 0;
     off_t skip = 0;
     while ((bytes_read = read(input_fd, buffer, buffer_size)) > 0) {
+        total_size += bytes_read;
         int is_empty = 1;
 
         for (ssize_t i = 0; i < bytes_read; i++) {
@@ -26,21 +28,26 @@ int sparse(const int input_fd, const int output_fd, const int buffer_size, char 
         } else {
             if (skip > 0) {
                 if (lseek(output_fd, skip, SEEK_CUR) == -1) {
-                    perror("sparse");
+                    perror("sparse: lseek");
                     return 1;
                 }
                 skip = 0;
             }
 
             if (write(output_fd, buffer, bytes_read) != bytes_read) {
-                perror("sparse");
+                perror("sparse: write");
                 return 1;
             }
         }
     }
 
     if (bytes_read < 0) {
-        perror("sparse");
+        perror("sparse: read");
+        return 1;
+    }
+
+    if (ftruncate(output_fd, total_size) == -1) {
+        perror("sparse ftruncate");
         return 1;
     }
 
