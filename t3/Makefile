@@ -12,5 +12,4 @@ dummy: src/dummy/dummy.c
 
 
 clean:
-	rm -rf out bin config.txt myinit.log tail_copy.txt
-	cat /dev/null > out_myinit_dummy.txt
+	rm -rf out bin config.txt myinit.log tail_copy.txt out_myinit_dummy.txt

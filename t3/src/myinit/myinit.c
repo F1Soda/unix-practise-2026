@@ -249,6 +249,30 @@ static int reload_config(
     return read_config_and_start_children(config_file_path, config_list, pid_and_config_index_array);
 }
 
+static int setup_sigactions() {
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sa.sa_handler = handle_sighup;
+    if (sigaction(SIGHUP, &sa, NULL) == -1) {
+        log_error("Failed to setup SIGHUP handler");
+        return 1;
+    }
+
+    sa.sa_handler = handle_shutdown;
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        log_error("Failed to setup SIGINT handler");
+        return 1;
+    }
+    if (sigaction(SIGTERM, &sa, NULL) == -1) {
+        log_error("Failed to setup SIGTERM handler");
+        return 1;
+    }
+
+    return 0;
+}
+
 
 int run_myinit(const char *config_file_path) {
     log_info("myinit started, PID: %d", getpid());
@@ -260,9 +284,9 @@ int run_myinit(const char *config_file_path) {
         return 1;
     }
 
-    signal(SIGHUP, handle_sighup);
-    signal(SIGINT, handle_shutdown);
-    signal(SIGTERM, handle_shutdown);
+    if (setup_sigactions() != 0) {
+        return 1;
+    }
 
     int running_processes = pid_and_config_index_array->count;
     while (!shutdown_flag && (running_processes > 0 || reload_config_flag)) {
